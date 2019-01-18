@@ -2,23 +2,35 @@ require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
 
-doc = Nokogiri::HTML(open("http://www2.assemblee-nationale.fr/deputes/liste/tableau"))
+@my_hash = []
 
-def get_mps_url
-  array_of_mps_firstname = []
-  array_of_mps_lastname = []
-  array_of_emails = []
-  hash_mps_email = {}
-
-  doc.xpath('//td[1]/a/@href').each do |name|
-    name.text.split().tr
-    array_of_mps_firstname =
-    array_of_mps_lastname =
-  end
-  name
-return hash_mps_email = array_of_mps.zip(array_of_emails).to_h
+def senator_informations
+  listing_senator
 end
 
-pre
+def listing_senator
+  page = Nokogiri::HTML(open("http://www2.assemblee-nationale.fr/deputes/liste/alphabetique"))
+  page.css('.col3 > li > a').each do |node|
+    url_senator = node.values
+    get_last_fist_name_email(url_senator)
+  end
+end
 
-//*[@id="DataTables_Table_0"]/tbody/tr[1]/td[1]/a
+def get_last_fist_name_email(url_senator)
+  email =[]
+  name = []
+  page2 = Nokogiri::HTML(open("http://www2.assemblee-nationale.fr#{url_senator[0]}"))
+  page2.xpath('//a[@class = "email"]').each do |node|
+    h = node.values[1].delete_prefix('mailto:')
+    email << h
+  end
+
+  name << page2.xpath('//h1').text
+
+  @my_hash = name.zip(email).to_h
+  puts @my_hash
+
+end
+
+puts senator_informations
+
